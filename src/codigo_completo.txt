@@ -1,0 +1,226 @@
+
+
+--- ARCHIVO: C:\Users\axela\Desktop\JAVA Becalos\Intro a REACT\IntroducciÛn a React\Proyecto final\mi-twitter-clon\src\components\Tweet.js ---
+
+import "react";
+
+const Tweet = ({ tweet, onLike }) => {
+
+  return (
+
+    <div className="tweet">
+
+      <p>{tweet.text}</p>
+
+      <button onClick={() => onLike(tweet.id)}>
+
+        ‚ù§ {tweet.likes}
+
+      </button>
+
+    </div>
+
+  );
+
+};
+
+export default Tweet;
+
+
+--- ARCHIVO: C:\Users\axela\Desktop\JAVA Becalos\Intro a REACT\IntroducciÛn a React\Proyecto final\mi-twitter-clon\src\components\TweetForm.js ---
+
+import { useState } from "react";
+
+const TweetForm = ({ onAddTweet }) => {
+
+  const [text, setText] = useState("");
+
+  const handleSubmit = (e) => {
+
+    e.preventDefault();
+
+    if (!text.trim()) return;
+
+    onAddTweet(text);
+
+    setText("");
+
+  };
+
+  return (
+
+    <form onSubmit={handleSubmit}>
+
+      <input
+
+        type="text"
+
+        value={text}
+
+        onChange={(e) => setText(e.target.value)}
+
+        placeholder="¬øQu√© est√°s pensando?"
+
+      />
+
+      <button type="submit">Tweet</button>
+
+    </form>
+
+  );
+
+};
+
+export default TweetForm;
+
+
+--- ARCHIVO: C:\Users\axela\Desktop\JAVA Becalos\Intro a REACT\IntroducciÛn a React\Proyecto final\mi-twitter-clon\src\components\TweetList.js ---
+
+import Tweet from "./Tweet";
+
+const TweetList = ({ tweets, onLike }) => {
+
+  return (
+
+    <div>
+
+      {tweets.map((tweet) => (
+
+        <Tweet key={tweet.id} tweet={tweet} onLike={onLike} />
+
+      ))}
+
+    </div>
+
+  );
+
+};
+
+export default TweetList;
+
+
+--- ARCHIVO: C:\Users\axela\Desktop\JAVA Becalos\Intro a REACT\IntroducciÛn a React\Proyecto final\mi-twitter-clon\src\pages\Home.js ---
+
+const Home = ({ user, logout }) => {
+  return (
+    <div>
+      <h1>Bienvenido a Twitter</h1>
+      {user && (
+        <div>
+          <p>Hola, {user.username}!</p>
+          <button onClick={logout}>Cerrar sesi√≥n</button>
+        </div>
+      )}
+      {/* ... contenido de la p√°gina ... */}
+    </div>
+  );
+};
+
+export default Home;
+
+
+--- ARCHIVO: C:\Users\axela\Desktop\JAVA Becalos\Intro a REACT\IntroducciÛn a React\Proyecto final\mi-twitter-clon\src\pages\Login.js ---
+
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const Login = ({ onLogin }) => {
+  const [username, setUsername] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onLogin(username);
+    navigate("/");
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        placeholder="Nombre de usuario"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <button type="submit">Iniciar sesi√≥n</button>
+    </form>
+  );
+};
+
+export default Login;
+
+
+--- ARCHIVO: C:\Users\axela\Desktop\JAVA Becalos\Intro a REACT\IntroducciÛn a React\Proyecto final\mi-twitter-clon\src\pages\Profile.js ---
+
+const Profile = ({ user }) => {
+  return (
+    <div>
+      <h1>Perfil</h1>
+      {user && <p>Nombre de usuario: {user.username}</p>}
+      {/* ... contenido de la p√°gina ... */}
+    </div>
+  );
+};
+
+export default Profile;
+
+
+--- ARCHIVO: C:\Users\axela\Desktop\JAVA Becalos\Intro a REACT\IntroducciÛn a React\Proyecto final\mi-twitter-clon\src\App.jsx ---
+
+// App.js
+import { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Home from "./pages/Home";
+import Profile from "./pages/Profile";
+import Login from "./pages/Login";
+
+const App = () => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const login = (username) => {
+    const userData = { username };
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+  };
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
+  };
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login onLogin={login} />} />
+        <Route path="/" element={<Home user={user} logout={logout} />} />
+        <Route
+          path="/profile"
+          element={user ? <Profile user={user} /> : <Navigate to="/login" />}
+        />
+      </Routes>
+    </Router>
+  );
+};
+
+export default App;
+
+
+--- ARCHIVO: C:\Users\axela\Desktop\JAVA Becalos\Intro a REACT\IntroducciÛn a React\Proyecto final\mi-twitter-clon\src\main.jsx ---
+
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
